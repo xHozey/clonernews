@@ -10,21 +10,13 @@
 <body>
     <nav class="navigation">
         <ul>
-            <li onclick="getStories()">Stories</li>
-            <li onclick="getJobs()">Jobs</li>
-            <li onclick="getPolls()">Polls</li>
+            <li onclick="getIds()">Stories</li>
+            <li onclick="fetchJobs()">Jobs</li>
+            <li onclick="displayPolls()">Polls</li>
 
         </ul>
     </nav>
-    <ol id="Stories">
-
-    </ol>
-    <ol id="Jobs">
-
-    </ol>
-    <ol id="Polls">
-
-    </ol>
+    <ol id="threads"></ol>
 
     <script src="main.js"></script>
 
