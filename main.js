@@ -1,7 +1,6 @@
-let StoriesThread = [];
-let JobsThread = [];
-let PollsThread = [];
-let container = document.getElementById('threads')
+let Posts = [];
+let infinity = [];
+let container = document.getElementById("threads");
 const getIds = async () => {
   try {
     let storiesRes = await fetch(
@@ -10,11 +9,14 @@ const getIds = async () => {
     let jobsRes = await fetch(
       "https://hacker-news.firebaseio.com/v0/jobstories.json"
     );
+    let largestPost = await fetch(
+      "https://hacker-news.firebaseio.com/v0/maxitem.json"
+    );
     let storiesIds = await storiesRes.json();
     let jobsIds = await jobsRes.json();
     fetchStories(storiesIds);
     fetchJobs(jobsIds);
-    fetchPolls()
+    fetchPolls(largestPost);
   } catch (err) {
     console.error(err);
   }
@@ -26,34 +28,47 @@ const fetchStories = (data) => {
       let dataRes = await fetch(
         `https://hacker-news.firebaseio.com/v0/item/${id}.json`
       );
-      let job = await dataRes.json();
-      StoriesThread.push({ text: job.title, by: job.by, time: job.time })
+      let story = await dataRes.json();
+      Posts.push({
+        text: story.title,
+        by: story.by,
+        time: story.time,
+        type: story.type,
+      });
     } catch (err) {
       console.error(err);
     }
   });
 };
 
-const fetchPolls = async () => {
-  let i = 126809;
-  const fetchNext = async() => {
+const fetchPolls = async (largestPost) => {
+  let i = largestPost;
+  if (i == 0) {
+    return;
+  }
+  const fetchNext = async () => {
     try {
       let dataRes = await fetch(
         `https://hacker-news.firebaseio.com/v0/item/${i}.json`
       );
-      let job = await dataRes.json();
-      if (job.type == "poll") {
-        PollsThread.push({ text: job.title, by: job.by, time: job.time })
+      let poll = await dataRes.json();
+      if (poll.type == "poll") {
+        infinity.push({
+          text: poll.title,
+          by: poll.by,
+          time: poll.time,
+          type: poll.type,
+        });
       }
     } catch (err) {
       console.error(err);
     } finally {
-      i++
-      console.log('first loop')
-      setTimeout(fetchNext, 200)
+      i--;
+      console.log("first loop");
+      setTimeout(fetchNext, 200);
     }
-  }
-  fetchNext
+  };
+  fetchNext();
 };
 
 const fetchJobs = (data) => {
@@ -63,21 +78,37 @@ const fetchJobs = (data) => {
         `https://hacker-news.firebaseio.com/v0/item/${id}.json`
       );
       let job = await dataRes.json();
-      JobsThread.push({ text: job.title, by: job.by, time: job.time })
+      Posts.push({
+        text: job.title,
+        by: job.by,
+        time: job.time,
+        job: job.type,
+      });
     } catch (err) {
       console.error(err);
     }
   });
 };
 
-const displayStories = () => {
-  StoriesThread.forEach((obj) => {
-    
-  })
-}
-
-
-
-
-
 getIds();
+
+let i = 0;
+let y = 30;
+const displayMore = () => {
+  console.log('clicked')
+  Posts.concat(infinity);
+  while (i+1) {
+    if (i == y) {
+      y += 30;
+      return;
+    }
+    container.innerHTML += `<div class="post">
+    <p>${Posts[i].text}</p>
+    <p>Name: <span id="name">${Posts[i].by}</span></p>
+    <p>Time: <span id="time">${Posts[i].time}</span></p>
+    <p>Type: <span id="type">${Posts[i].type}</span></p>
+    </div>
+    `;
+    i++;
+  }
+};
