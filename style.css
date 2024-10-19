@@ -1,0 +1,45 @@
+body {
+    background-color:  hsla(53, 7%, 51%, 0.329);    
+}
+
+.load {
+    padding: 10px;
+    margin: 30px;
+    margin-bottom: 15px;
+    background-color: rgba(69, 77, 87, 0.747);
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.post {
+    border: 1px solid #e2e2e2;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 5px;
+    background-color: #b999996b;
+    box-shadow: 0 1px 3px rgba(85, 48, 48, 0.1);
+}
+
+.post p {
+    margin: 5px 0;
+}
+
+.url{
+    color: #3587b9;
+    text-decoration: none;
+}
+
+#name {
+    font-size: 15px;
+    font-weight: bold;
+}
+
+#type {
+    font-size: 18px;
+    color: #000000;
+}
+
+.post span {
+    font-size: 14px;
+}
+
