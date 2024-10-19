@@ -1,57 +1,93 @@
+const stories = document.getElementById("Stories");
+const jobs = document.getElementById("Jobs");
+const polls = document.getElementById("Polls");
+const storieDiv = document.createElement("div");
+const jobDiv = document.createElement("div");
+const pollDiv = document.createElement("div");
 
-const getStories = async () => {
-
+const getAllData = async () => {
   try {
-    let storiesRes = await fetch(
-      "https://hacker-news.firebaseio.com/v0/topstories.json"
-    );
-    let storiesIds = await storiesRes.json();
-    data = storiesIds;
-    displayStories(data);
+    let response = await Promise.all([
+      fetch("https://hacker-news.firebaseio.com/v0/topstories.json"),
+      fetch("https://hacker-news.firebaseio.com/v0/jobstories.json"),
+    ]);
+
+    let storiesIds = await response[0].json();
+    let jobsIds = await response[1].json();
+    fetchStories(storiesIds);
+    fetchPolls(storiesIds);
+    fetchJobs(jobsIds);
   } catch (err) {
     console.error(err);
   }
 };
 
-const getPolls = async () => {
-  try {
-    let storiesRes = await fetch(
-      "https://hacker-news.firebaseio.com/v0/topstories.json"
-    );
-    let storiesIds = await storiesRes.json();
-    data = storiesIds;
-    displayPolls(data);
-  } catch (err) {
-    console.error(err);
-  }
+const getStories = () => {
+  jobs.innerHTML = "";
+  polls.innerHTML = "";
+  stories.append(storieDiv);
 };
 
-const getJobs = async () => {
-  try {
-    let jobsRes = await fetch(
-      "https://hacker-news.firebaseio.com/v0/jobstories.json"
-    );
-    let jobsIds = await jobsRes.json();
-    displayJobs(jobsIds);
-  } catch (err) {
-    console.error(err);
-  }
+const getPolls = () => {
+  jobs.innerHTML = "";
+  stories.innerHTML = "";
+  polls.append(pollDiv);
 };
 
-const displayStories = (data) => {
-  cleanPrevData();
+const getJobs = () => {
+  polls.innerHTML = "";
+  stories.innerHTML = "";
+  jobs.append(jobDiv);
+};
+
+const fetchStories = (data) => {
+  let index = 0; 
+  const interval = setInterval(async () => {
+    if (index >= data.length) {
+      clearInterval(interval); 
+      return;
+    }
+    
+    try {
+      let dataRes = await fetch(
+        `https://hacker-news.firebaseio.com/v0/item/${data[index]}.json`
+      );
+      let job = await dataRes.json();
+      
+      if (job.type === "story") {
+        let li = document.createElement("li");
+        li.classList = "thread";
+        let link = document.createElement("a");
+        link.setAttribute("href", job.url);
+        link.setAttribute("target", "_blank");
+        link.textContent = job.title;
+        storieDiv.append(li); 
+      }
+    } catch (err) {
+      console.error(err);
+    }
+
+    index++; 
+  }, 400);
+};
+
+
+const fetchPolls = (data) => {
   data.forEach(async (id) => {
     try {
       let dataRes = await fetch(
         `https://hacker-news.firebaseio.com/v0/item/${id}.json`
       );
       let job = await dataRes.json();
-      if ((job.type = "story")) {
-        let ol = document.getElementById("threads");
+      if (job.type == "polls") {
         let li = document.createElement("li");
         li.classList = "thread";
-        li.innerText = job.title;
-        ol.appendChild(li);
+        let link = document.createElement("a");
+        link.setAttribute("href", job.url);
+        link.setAttribute("target", "_blank");
+        link.textContent = job.title;
+        li.appendChild(link);
+        pollDiv.append(li);
       }
     } catch (err) {
       console.error(err);
@@ -59,47 +95,25 @@ const displayStories = (data) => {
   });
 };
 
-const displayPolls = (data) => {
-  cleanPrevData();
+const fetchJobs = (data) => {
   data.forEach(async (id) => {
     try {
       let dataRes = await fetch(
         `https://hacker-news.firebaseio.com/v0/item/${id}.json`
       );
       let job = await dataRes.json();
-      if ((job.type = "polls")) {
-        let ol = document.getElementById("threads");
-        let li = document.createElement("li");
-        li.classList = "thread";
-        li.innerText = job.title;
-        ol.appendChild(li);
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  });
-};
-
-const displayJobs = (data) => {
-  cleanPrevData();
-  data.forEach(async (id) => {
-    try {
-      let dataRes = await fetch(
-        `https://hacker-news.firebaseio.com/v0/item/${id}.json`
-      );
-      let job = await dataRes.json();
-      let ol = document.getElementById("threads");
       let li = document.createElement("li");
       li.classList = "thread";
-      li.innerText = job.title;
-      ol.appendChild(li);
+      let link = document.createElement("a");
+      link.setAttribute("href", job.url);
+      link.setAttribute("target", "_blank");
+      link.textContent = job.title;
+      li.appendChild(link);
+      jobDiv.append(li);
     } catch (err) {
       console.error(err);
     }
   });
 };
 
-const cleanPrevData = () => {
-  let data = document.getElementById("threads");
-  data.innerHTML = "";
-};
+getAllData();

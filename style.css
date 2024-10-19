@@ -18,3 +18,10 @@ h1 {
 
 }
 
+.thread {
+    padding: 15px;
+    gap: 30px
+    ;
+    background-color: rgba(150, 138, 122, 0.534);
+    color: white;
+}
