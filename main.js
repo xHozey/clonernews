@@ -55,7 +55,6 @@ const fetchPolls = async (largestPost) => {
         `https://hacker-news.firebaseio.com/v0/item/${i}.json`
       );
       let poll = await dataRes.json();
-
       if (poll.type === "poll") {
         infinity.push({
           text: poll.title,
@@ -103,6 +102,15 @@ const fetchJobs = (data) => {
 
 getIds();
 
+const showComments = (id) => {
+  let div = document.getElementById(id);
+  if (div.style.display == "none") {
+    div.style.display = "block";
+  } else {
+    div.style.display = "none";
+  }
+};
+
 let i = 0;
 let y = 30;
 const displayMore = async () => {
@@ -117,7 +125,7 @@ const displayMore = async () => {
     const unixTime = Posts[i].time;
     const date = new Date(unixTime * 1000);
 
-    container.innerHTML += `<div class="post" id="${Posts[i].id}">
+    container.innerHTML += `<div class="post">
     <p>${Posts[i].text}</p>
     <a href="${Posts[i].url ? Posts[i].url : ""}" target="_blank" class="url">${
       Posts[i].url ? Posts[i].url : ""
@@ -125,22 +133,22 @@ const displayMore = async () => {
     <p>By: <span id="name">${Posts[i].by}</span></p>
     <p>Type: <span id="type">${Posts[i].type}</span></p>
     <p>Created at: <span>${date.toLocaleString()}</span></p>
+    <span class="show-comment">Show Comments...</span>
+    <div id="${Posts[i].id}"></div>
     </div>
     `;
-    // let comments = await getComments(Posts[i].kids)
-    // for (let cmt of comments) {
-    //   let parent = document.getElementById(Posts[i].id)
-    //   parent.innerHTML += `<div class="comment">
-    //   <p>${cmt.text}</p>
-    //   <p>by: ${cmt.by}</p>
-    //   <p>Created at: ${cmt.date}</p>
-    //   </div>`
-    // }
+    getComments(Posts[i].kids, Posts[i].id);
     i++;
   }
 };
 
-const getComments = async (kids) => {
+setTimeout(() => {
+  displayMore();
+}, 5000);
+
+
+
+const getComments = async (kids, parent) => {
   let comments = [];
   for (let i of kids) {
     try {
@@ -163,11 +171,15 @@ const getComments = async (kids) => {
   comments.sort((a, b) => {
     return b.unixTime - a.unixTime;
   });
-  return comments;
+  let parentDiv = document.getElementById(parent);
+  parentDiv.style.display = "none";
+  for (let i of comments) {
+    parentDiv.innerHTML += `<p>${i.text}</p>
+      <p>By: <span id="name">${i.by}</span></p>
+      <p>Created at: <span>${i.date}</span></p>
+      `;
+  }
 };
 
-const refrechPosts = () => {};
+//const refrechPosts = () => {};
 
-setTimeout(() => {
-  displayMore();
-}, 5000);
