@@ -180,8 +180,6 @@ setInterval(async () => {
     await fetchNewData(currentID);
   }
 }, 5000);
-let newsContainer = document.getElementById("news");
-
 const fetchNewData = async (id) => {
   try {
     let postResponse = await fetch(
@@ -191,7 +189,7 @@ const fetchNewData = async (id) => {
     console.log(id)
     console.log(metaData.type)
     if (metaData.type != "comment") {
-      newsContainer.innerHTML += `<div class="post">
+      container.innerHTML = `<div class="post">
       <p>${metaData.text}</p>
       <a href="${
         metaData.url ? metaData.url : ""
@@ -201,10 +199,10 @@ const fetchNewData = async (id) => {
         <span class="show-comment">Show Comments...</span>
         <div id="${metaData.id}"></div>
         </div>
-        `;
+        ` + container.innerHTML
       alert("New Post!");
       currentID = id;
-    }
+   }
   } catch (err) {
     console.error(err);
   }
