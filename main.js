@@ -146,8 +146,6 @@ setTimeout(() => {
   displayMore();
 }, 5000);
 
-
-
 const getComments = async (kids, parent) => {
   let comments = [];
   for (let i of kids) {
@@ -181,5 +179,43 @@ const getComments = async (kids, parent) => {
   }
 };
 
-//const refrechPosts = () => {};
+let currentID;
+setInterval(async () => {
+  let largestPostRes = await fetch(
+    "https://hacker-news.firebaseio.com/v0/maxitem.json"
+  );
+  let largestPostID = await largestPostRes.json();
+  if (currentID != largestPostID) {
+    currentID = largestPostID
+    await fetchNewData(currentID);
+  }
+}, 5000);
+let newsContainer = document.getElementById("news");
 
+const fetchNewData = async (id) => {
+  try {
+    let postResponse = await fetch(
+      `https://hacker-news.firebaseio.com/v0/item/${id}.json`
+    );
+    let metaData = await postResponse.json();
+    console.log(id)
+    console.log(metaData.type)
+    if (metaData.type != "comment") {
+      newsContainer.innerHTML += `<div class="post">
+      <p>${metaData.text}</p>
+      <a href="${
+        metaData.url ? metaData.url : ""
+      }" target="_blank" class="url">${metaData.url ? metaData.url : ""}<a>
+        <p>By: <span id="name">${metaData.by}</span></p>
+        <p>Type: <span id="type">${metaData.type}</span></p>
+        <span class="show-comment">Show Comments...</span>
+        <div id="${metaData.id}"></div>
+        </div>
+        `;
+      alert("New Post!");
+      currentID = id;
+    }
+  } catch (err) {
+    console.error(err);
+  }
+};
