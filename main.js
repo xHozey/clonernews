@@ -1,5 +1,7 @@
 let Posts = [];
 let infinity = [];
+let idsList = [];
+let maxID;
 let container = document.getElementById("threads");
 const getIds = async () => {
   try {
@@ -14,40 +16,46 @@ const getIds = async () => {
     );
     let storiesIds = await storiesRes.json();
     let jobsIds = await jobsRes.json();
-    fetchPolls(largestPost);
-    fetchStories(storiesIds);
-    fetchJobs(jobsIds);
+    idsList = storiesIds.concat(jobsIds);
+    maxID = await largestPost.json();
   } catch (err) {
     console.error(err);
   }
 };
 
-const fetchStories = (data) => {
-  data.forEach(async (id) => {
-    try {
-      let dataRes = await fetch(
-        `https://hacker-news.firebaseio.com/v0/item/${id}.json`
-      );
-      let story = await dataRes.json();
-      Posts.push({
-        text: story.title,
-        by: story.by,
-        time: story.time,
-        type: story.type,
-        url: story.url,
-        id: story.id,
-        comments: story.kids,
-      });
-    } catch (err) {
-      console.error(err);
+let start = 0;
+let end = 10;
+const fetchStoriesAndJobs = async () => {
+  if (start <= idsList.length) {
+    let current = idsList.slice(start, end);
+    console.log(current)
+    for (let id of current) {
+      try {
+        let dataRes = await fetch(
+          `https://hacker-news.firebaseio.com/v0/item/${id}.json`
+        );
+        let story = await dataRes.json();
+        Posts.push({
+          text: story.title,
+          by: story.by,
+          time: story.time,
+          type: story.type,
+          url: story.url,
+          id: story.id,
+          comments: story.kids,
+        });
+      } catch (err) {
+        console.error(err);
+      }
     }
-  });
+    start += 10;
+    end += 10;
+  }
 };
 
-const fetchPolls = async (largestPost) => {
-  let largeID = await largestPost.json();
-  let i = largeID;
 
+const fetchPolls = async (largestPost) => {
+  let i = largestPost;
   const fetchNext = async () => {
     if (i === 0) return;
     try {
@@ -65,6 +73,7 @@ const fetchPolls = async (largestPost) => {
           id: poll.id,
           comments: poll.kids,
         });
+        console.log("found one");
         //updates
       }
     } catch (err) {
@@ -74,78 +83,51 @@ const fetchPolls = async (largestPost) => {
       setTimeout(fetchNext, 200);
     }
   };
-
   fetchNext();
 };
-
-const fetchJobs = (data) => {
-  data.forEach(async (id) => {
-    try {
-      let dataRes = await fetch(
-        `https://hacker-news.firebaseio.com/v0/item/${id}.json`
-      );
-      let job = await dataRes.json();
-      Posts.push({
-        text: job.title,
-        by: job.by,
-        time: job.time,
-        job: job.type,
-        url: job.url,
-        id: job.id,
-        comments: job.kids,
-      });
-    } catch (err) {
-      console.error(err);
-    }
-  });
-};
-
-getIds();
-
-const showComments = (id) => {
-  let div = document.getElementById(id);
-  if (div.style.display == "none") {
-    div.style.display = "block";
+const showComments = (event) => {
+  console.log("hi");
+  let postDiv = event.target.closest(".post");
+  let commentsDiv = postDiv.querySelector("div[id]");
+  if (
+    commentsDiv.style.display === "none" ||
+    commentsDiv.style.display === ""
+  ) {
+    commentsDiv.style.display = "block";
   } else {
-    div.style.display = "none";
+    commentsDiv.style.display = "none";
   }
 };
-
 let i = 0;
 let y = 30;
 const displayMore = async () => {
+  fetchStoriesAndJobs()
+  Posts.concat(infinity);
   Posts.sort((a, b) => {
     return b.time - a.time;
   });
-  while (i + 1) {
+  while (i < Posts.length) {
     if (i == y) {
-      y += 30;
+      y += 10;
       return;
     }
     const unixTime = Posts[i].time;
     const date = new Date(unixTime * 1000);
-
     container.innerHTML += `<div class="post">
-    <p>${Posts[i].text}</p>
-    <a href="${Posts[i].url ? Posts[i].url : ""}" target="_blank" class="url">${
-      Posts[i].url ? Posts[i].url : ""
-    }<a>
-    <p>By: <span id="name">${Posts[i].by}</span></p>
-    <p>Type: <span id="type">${Posts[i].type}</span></p>
+    <p>${Posts[i].text ? Posts[i].text : 'No Title Available'}</p>
+    <a href="${Posts[i].url ? Posts[i].url : '#'}" target="_blank" class="url">${Posts[i].url ? Posts[i].url : 'No URL Available'}</a>
+    <p>By: <span id="name">${Posts[i].by ? Posts[i].by : 'Unknown'}</span></p>
+    <p>Type: <span id="type">${Posts[i].type ? Posts[i].type : 'N/A'}</span></p>
     <p>Created at: <span>${date.toLocaleString()}</span></p>
     <span class="show-comment">Show Comments...</span>
     <div id="${Posts[i].id}"></div>
-    </div>
-    `;
-    getComments(Posts[i].kids, Posts[i].id);
+    </div>`;
+    if (Posts[i].kids) {
+      await getComments(Posts[i].kids, Posts[i].id);
+    }
     i++;
   }
 };
-
-setTimeout(() => {
-  displayMore();
-}, 5000);
-
 const getComments = async (kids, parent) => {
   let comments = [];
   for (let i of kids) {
@@ -162,6 +144,7 @@ const getComments = async (kids, parent) => {
         date: date.toLocaleString(),
         unixTime: comment.time,
       });
+      console.log(i);
     } catch (err) {
       console.error(err);
     }
@@ -170,7 +153,7 @@ const getComments = async (kids, parent) => {
     return b.unixTime - a.unixTime;
   });
   let parentDiv = document.getElementById(parent);
-  parentDiv.style.display = "none";
+  //parentDiv.style.display = "none";
   for (let i of comments) {
     parentDiv.innerHTML += `<p>${i.text}</p>
       <p>By: <span id="name">${i.by}</span></p>
@@ -178,6 +161,13 @@ const getComments = async (kids, parent) => {
       `;
   }
 };
+
+getIds().then(() => {
+  fetchStoriesAndJobs().then(() => {
+    displayMore();
+  });
+});
+
 
 let currentID;
 setInterval(async () => {

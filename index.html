@@ -1,20 +1,29 @@
+<!DOCTYPE html>
 <html lang="en">
-
 <head>
     <link rel="stylesheet" href="style.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>myLab</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #ff6600;
+            padding: 10px;
+        }
+    </style>
 </head>
-
 <body>
+    <header>
+        <h1 id="myh1">Clonernews</h1>
+    </header>
     <ol id="threads"></ol>
-    <span onclick="displayMore()" class="load">load more...</span>
-    <a href="news.html">News!!</a>
-
+    <center>
+        <span onclick="displayMore()" class="load">more</span>
+    </center>
     <script src="main.js"></script>
-
 </body>
-
 </html>
-

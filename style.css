@@ -1,7 +1,6 @@
 body {
-    background-color:  hsla(53, 7%, 51%, 0.329);    
+    background-color: hsla(53, 7%, 51%, 0.329);
 }
-
 .load {
     padding: 10px;
     margin: 30px;
@@ -10,43 +9,35 @@ body {
     border-radius: 10px;
     cursor: pointer;
 }
-
 .post {
-    border: 1px solid #e2e2e2;
+    border: 1px solid #f4f4f4;
     padding: 15px;
     margin: 10px 0;
     border-radius: 5px;
-    background-color: #b999996b;
-    box-shadow: 0 1px 3px rgba(85, 48, 48, 0.1);
+    background-color: #f5dfd1;
+    box-shadow: 0 1px 3px rgba(185, 0, 0, 0.1);
 }
-
 .post p {
     margin: 5px 0;
 }
-
-.url{
-    color: #3587b9;
+.url {
+    color: #0400ff;
     text-decoration: none;
 }
-
 #name {
     font-size: 15px;
     font-weight: bold;
 }
-
 #type {
     font-size: 18px;
     color: #000000;
 }
-
 .post span {
     font-size: 14px;
 }
-
 .class {
     display: none;
 }
-
 /* .show-comments {
     padding: 10px;
     margin: 30px;
